@@ -1,0 +1,12 @@
+WIDTH, HEIGHT = 800, 400
+WHITE = (255, 255, 255)
+YELLOW = (252,186,33)
+BLACK = (0, 0, 0)
+RED = (200, 0, 0)
+BLUE = (0, 0, 255)
+
+MENU_OPTIONS = (
+    'NEW GAME',
+    'SCORE',
+    'EXIT'
+)
