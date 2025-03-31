@@ -185,7 +185,7 @@ class Game:
 
     def reset(self):
         self.level = EntityFactory.create('level')
-        self.player = EntityFactory.create('player',x=WIDTH-700,y=HEIGHT,width=30,height=50,speed=3,sprite_size=(100,70))
+        self.player = EntityFactory.create('player',x=WIDTH-700,y=HEIGHT,width=15,height=50,speed=3,sprite_size=(100,70))
         self.obstacles = [
             EntityFactory.create(
                 'obstacle',

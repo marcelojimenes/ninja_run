@@ -42,7 +42,7 @@ class Player(Entity):
     def draw(self, screen) -> pygame.Rect:
         self.image = self.sprites[self.current_state][int(self.current_sprite_index)]
         sprite_rect = self.image.get_rect()
-        sprite_rect.midbottom = self.rect.midbottom
+        sprite_rect.center = self.rect.midright
 
         screen.blit(self.image, sprite_rect.topleft)
 
