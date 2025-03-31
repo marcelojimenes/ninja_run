@@ -171,6 +171,9 @@ class Game:
         return name
 
     def run(self):
+        pygame.mixer.music.load("./assets/sounds/menu.mp3")
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.3)
         menu = Menu(self.screen, self.static_bg)
         while self.running:
             opt = menu.run()
