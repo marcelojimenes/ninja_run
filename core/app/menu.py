@@ -4,8 +4,9 @@ from config.settings import *
 
 
 class Menu:
-    def __init__(self, screen):
+    def __init__(self, screen, bg):
         self.screen = screen
+        self.bg = bg
         self.running = True
 
     def run(self) -> int | None:
@@ -24,7 +25,7 @@ class Menu:
                     quit()
 
     def draw(self, selected_option: int) -> None:
-        self.screen.fill(BLACK)
+        self.screen.blit(self.bg, (0, 0))
         self.render_static_text()
         self.render_menu_options(selected_option)
         pygame.display.flip()
@@ -32,11 +33,11 @@ class Menu:
     def render_static_text(self) -> None:
         title = [("Ninja", (WIDTH / 2, 80)), ("Run!", ((WIDTH / 2 + 50), 140))]
         for text, position in title:
-            self.menu_text(80, text, WHITE, position)
+            self.menu_text(80, text, BLACK, position)
 
     def render_menu_options(self, selected_option: int) -> None:
         for i, option in enumerate(MENU_OPTIONS):
-            color = YELLOW if i == selected_option else WHITE
+            color = WHITE if i == selected_option else BLACK
             position = WIDTH / 2, 250 + 30 * i
             self.menu_text(30, option, color, position)
 

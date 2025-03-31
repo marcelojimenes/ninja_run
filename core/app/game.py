@@ -1,5 +1,4 @@
 import pygame
-import random
 from config.settings import *
 from core.app.menu import Menu
 from core.database.db import Database
@@ -9,29 +8,25 @@ NEW_GAME = 0
 SCORE = 1
 EXIT = 2
 
+
 class Game:
     def __init__(self, db: Database):
-        self.db = db
         pygame.init()
+
+        self.db = db
         self.running = True
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Ninja Run!")
+        self.static_bg = pygame.image.load("assets/images/static.png")
+        self.static_bg = pygame.transform.scale(self.static_bg, (WIDTH, HEIGHT))
 
         self.clock = pygame.time.Clock()
         self.base_obstacle_speed = 3
         self.speed_increment = 0.3
-
-        self.player = EntityFactory.create('player')
-        self.obstacles = [
-            EntityFactory.create(
-                'obstacle',
-                x=WIDTH,
-                y=HEIGHT,
-                width=20,
-                height=50,
-                speed=5
-            )
-        ]
+        self.level = None
+        self.player = None
+        self.obstacles = []
+        self.reset()
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -50,12 +45,15 @@ class Game:
 
     def draw(self):
         self.screen.fill(WHITE)
-        pygame.draw.line(self.screen, BLACK, (0, HEIGHT-50), (WIDTH, HEIGHT-50),)
+        self.level.draw(self.screen)
+        #pygame.draw.line(self.screen, BLACK, (0, HEIGHT - 35), (WIDTH, HEIGHT - 35), )
         player = self.player.draw(self.screen)
 
         for obstacle in self.obstacles:
             obs = obstacle.draw(self.screen)
             if obs.colliderect(player):
+                self.player.set_game_over()
+                pygame.time.delay(1000)
                 self.game_over(self.player.get_score())
                 break
 
@@ -77,6 +75,7 @@ class Game:
     def start(self):
         while self.running:
             self.handle_events()
+            self.level.update()
             self.update_obstacles()
             self.player.update()
             self.draw()
@@ -84,10 +83,11 @@ class Game:
 
     def game_over(self, final_score):
         while self.running:
-            self.screen.fill(WHITE)
+            # self.screen.fill(WHITE)
+            self.screen.blit(self.static_bg, (0, 0))
             self.draw_text("Game Over", 48, (WIDTH // 2) - 150, 100, RED)
             self.draw_text(f"Your score: {final_score}", 36, (WIDTH // 2) - 150, 180, BLACK)
-            self.draw_text("Press ENTER to register your score or ESC to quit.", 24, (WIDTH // 2) - 150, 250,BLUE)
+            self.draw_text("Press ENTER to register your score or ESC to quit.", 24, (WIDTH // 2) - 150, 250, WHITE)
 
             pygame.display.update()
 
@@ -115,8 +115,9 @@ class Game:
     def show_ranking(self):
         start_time = pygame.time.get_ticks()
         while self.running:
-            self.screen.fill(WHITE)
-            self.draw_text("Ranking - Top 5", 36, (WIDTH // 2) - 100, 50, RED)
+            #self.screen.fill(WHITE)
+            self.screen.blit(self.static_bg, (0, 0))
+            self.draw_text("RANKING - TOP 5", 36, (WIDTH // 2) - 100, 50, RED)
             scores = self.db.fetch_scores()
             y_offset = 100
 
@@ -127,7 +128,7 @@ class Game:
             elapsed_time = pygame.time.get_ticks() - start_time
             remaining_time = max(0, 5000 - elapsed_time)
 
-            self.draw_text(f"Returning in {remaining_time // 1000}s", 24, (WIDTH // 2) - 100, y_offset+50, BLUE)
+            self.draw_text(f"Returning in {remaining_time // 1000}s", 36, (WIDTH // 2) - 100, y_offset + 35, BLUE)
             pygame.display.update()
 
             if remaining_time <= 0:
@@ -141,10 +142,11 @@ class Game:
     def get_player_name(self) -> str:
         name = ""
         while self.running:
-            self.screen.fill(WHITE)
+            # self.screen.fill(WHITE)
+            self.screen.blit(self.static_bg, (0, 0))
             self.draw_text("Please, enter your name:", 48, (WIDTH // 2) - 150, 100)
             self.draw_text(name, 36, (WIDTH // 2) - 150, 180, BLACK)
-            self.draw_text("Press ENTER to confirm.", 24, (WIDTH // 2) - 150, 250, BLUE)
+            self.draw_text("Press ENTER to confirm.", 24, (WIDTH // 2) - 150, 250, WHITE)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -157,6 +159,10 @@ class Game:
                             return name
                     elif event.key == pygame.K_BACKSPACE:
                         name = name[:-1]
+                    elif event.key == pygame.K_ESCAPE:
+                        self.running = False
+                        pygame.quit()
+                        quit()
                     else:
                         name += event.unicode
 
@@ -165,7 +171,7 @@ class Game:
         return name
 
     def run(self):
-        menu = Menu(self.screen)
+        menu = Menu(self.screen, self.static_bg)
         while self.running:
             opt = menu.run()
             if opt == NEW_GAME:
@@ -178,14 +184,15 @@ class Game:
                 quit()
 
     def reset(self):
-        self.player = EntityFactory.create('player')
+        self.level = EntityFactory.create('level')
+        self.player = EntityFactory.create('player',x=WIDTH-700,y=HEIGHT,width=30,height=50,speed=3,sprite_size=(100,70))
         self.obstacles = [
             EntityFactory.create(
                 'obstacle',
                 x=WIDTH,
                 y=HEIGHT,
-                width=20,
+                width=50,
                 height=50,
-                speed=5
+                speed=5,
             )
         ]

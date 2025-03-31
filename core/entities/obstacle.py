@@ -1,16 +1,22 @@
 import pygame
-import random
 from config.settings import *
 from core.entities.entity import Entity
 
 
 class Obstacle(Entity):
     def __init__(self, x, y, width, height, speed):
-        self.rect = pygame.Rect(x, y, width, height)
+        self.rect = pygame.Rect((x, y), (width, height))
+        self.image = pygame.image.load("./assets/images/obstacles/rock.png")
+        self.image = pygame.transform.scale(self.image, (width, height))
         self.speed = speed
 
-    def draw(self, surface) -> pygame.Rect:
-        return pygame.draw.rect(surface, RED, self.rect)
+
+    def draw(self, screen) -> pygame.Rect:
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+        # hit box debug
+        #pygame.draw.rect(screen, (255, 0, 0), self.rect, 2)
+        return self.rect
+
 
     def move(self):
         self.rect.x -= self.speed
