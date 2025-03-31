@@ -87,6 +87,12 @@ class Game:
             self.screen.blit(self.static_bg, (0, 0))
             self.draw_text("Game Over", 48, (WIDTH // 2) - 150, 100, RED)
             self.draw_text(f"Your score: {final_score}", 36, (WIDTH // 2) - 150, 180, BLACK)
+
+            if final_score == 0:
+                self.show_ranking()
+                self.reset()
+                return
+
             self.draw_text("Press ENTER to register your score or ESC to quit.", 24, (WIDTH // 2) - 150, 250, WHITE)
 
             pygame.display.update()
